@@ -5,11 +5,10 @@ import TableSearch from '../components/tableSearch'
 function Knowledge() {
   const searchConfig = [
     { type: 'input', name: 'search', placeholder: '搜索知识库' },
-    { type: 'select', name: 'type', placeholder: '知识库类型', options: [{ label: '情感分析', value: 'emotional' }, { label: '咨询管理', value: 'cousutation' }, { label: '其他知识库' }] }
+    { type: 'select', name: 'type', placeholder: '知识库类型', options: [{ label: '情感分析', value: 'emotional' }, { label: '咨询管理', value: 'cousutation' }, { label: '其他知识库' ,value:'other'}] }
   ]
-  const onSearch = () => {
-    //*打印搜索参数
-    console.log('搜索参数',)
+  const onSearch = (values) => {
+    console.log('搜索参数:', values)
   }
   return (
     <div>
