@@ -1,0 +1,103 @@
+/* 整体布局 */
+.custom-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* 自定义侧边栏 */
+.custom-sider {
+  width: 200px;
+  min-height: 100vh;
+  background: #001529;
+  transition: width 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.custom-sider.collapsed {
+  width: 80px;
+}
+.custom-logo-container {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #001529;
+}
+/* Logo 区域 */
+.custom-logo {
+  height: 32px;
+  margin: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+
+
+
+
+.logo-icon {
+  font-size: 36px;
+  user-select: none;
+}
+
+.logo-text {
+  user-select: none;
+}
+
+/* 菜单 */
+.custom-menu {
+  border-right: none;
+}
+
+/* 主内容区 */
+.custom-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* 顶部栏 */
+.custom-header {
+  height: 64px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.toggle-btn {
+  font-size: 18px;
+  line-height: 64px;
+  padding: 0 24px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-btn:hover {
+  color: #1890ff;
+}
+
+.user-dropdown {
+  cursor: pointer;
+  padding: 0 24px;
+  user-select: none;
+}
+
+/* 内容区 */
+.custom-content {
+  margin: 24px 16px;
+  padding: 24px;
+  background: #fff;
+  min-height: 280px;
+  flex: 1;
+}
