@@ -6,6 +6,9 @@ import Cousutation from '../views/cousutation.jsx'
 import Emotional from '../views/emotional.jsx'
 import Knowledge from '../views/knowledge.jsx'
 import { Navigate } from 'react-router-dom'
+import AuthLayout from '../components/AuthLayout.jsx'
+import Login from '../views/login.jsx'
+import Register from '../views/register.jsx'
 
 
 
@@ -41,6 +44,21 @@ const backendRouter = createBrowserRouter([
       },
     ],
   },
+  {
+    path:'/Auth',
+    element:<AuthLayout />,
+    children:[
+      {
+        path:'login',
+        element:<Login />,
+
+      },
+      {
+        path:'register',
+        element:<Register />,
+      },
+    ]
+  }
 ])
 
 export default backendRouter
