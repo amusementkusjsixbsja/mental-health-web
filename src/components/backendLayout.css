@@ -24,10 +24,12 @@
   justify-content: center;
   background-color: #001529;
 }
+.sidebar-logo-icon {
+  font-size: 26px;
+  user-select: none;
+}
 /* Logo 区域 */
 .custom-logo {
-  height: 32px;
-  margin: 16px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -42,10 +44,6 @@
 
 
 
-.logo-icon {
-  font-size: 36px;
-  user-select: none;
-}
 
 .logo-text {
   user-select: none;

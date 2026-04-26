@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { Menu, Dropdown } from 'antd'
+import { Menu, Dropdown, message } from 'antd'
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -19,6 +19,27 @@ function BackendLayout() {
   const [collapsed, setCollapsed] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('userInfo')
+    message.success('退出登录成功')
+    navigate('/Auth/login')
+  }
+
+  const userMenuItems = [
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: '退出登录',
+    },
+  ]
+
+  const handleMenuClick = ({ key }) => {
+    if (key === 'logout') {
+      handleLogout()
+    }
+  }
 
   const menuItems = [
     {
@@ -43,14 +64,6 @@ function BackendLayout() {
     },
   ]
 
-  const userMenuItems = [
-    {
-      key: 'logout',
-      icon: <LogoutOutlined />,
-      label: '退出登录',
-    },
-  ]
-
   return (
     <div className="custom-layout">
       {/* 自定义侧边栏 */}
@@ -58,7 +71,7 @@ function BackendLayout() {
 
         <div className="custom-logo-container">
           <div className="custom-logo">
-            <RobotOutlined className="logo-icon" />
+            <RobotOutlined className="sidebar-logo-icon" />
             {!collapsed && <span className="logo-text">心理健康助手</span>}
           </div>
         </div>
@@ -87,7 +100,7 @@ function BackendLayout() {
               className="toggle-btn"
             />
           )}
-          <Dropdown menu={{ items: userMenuItems }} trigger="hover" placement="bottomRight">
+          <Dropdown menu={{ items: userMenuItems, onClick: handleMenuClick }} trigger="hover" placement="bottomRight">
             <span className="user-dropdown">
               <UserOutlined /> Admin <DownOutlined />
             </span>
