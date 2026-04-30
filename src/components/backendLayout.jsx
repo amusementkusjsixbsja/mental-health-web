@@ -15,11 +15,14 @@ import {
 } from '@ant-design/icons'
 import './backendLayout.css'
 
+// 后台管理布局组件：包含侧边栏导航、顶部栏和内容区域
 function BackendLayout() {
+  // 控制侧边栏展开/折叠状态
   const [collapsed, setCollapsed] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
 
+  // 处理用户退出登录
   const handleLogout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('userInfo')
@@ -27,6 +30,7 @@ function BackendLayout() {
     navigate('/Auth/login')
   }
 
+  // 用户下拉菜单项配置
   const userMenuItems = [
     {
       key: 'logout',
@@ -35,12 +39,14 @@ function BackendLayout() {
     },
   ]
 
+  // 处理用户菜单点击事件
   const handleMenuClick = ({ key }) => {
     if (key === 'logout') {
       handleLogout()
     }
   }
 
+  // 侧边栏导航菜单配置
   const menuItems = [
     {
       key: '/back/dashboard',
@@ -66,7 +72,7 @@ function BackendLayout() {
 
   return (
     <div className="custom-layout">
-      {/* 自定义侧边栏 */}
+      {/* 自定义侧边栏：包含Logo和导航菜单 */}
       <aside className={`custom-sider ${collapsed ? 'collapsed' : ''}`}>
 
         <div className="custom-logo-container">
@@ -86,9 +92,10 @@ function BackendLayout() {
         />
       </aside>
 
-      {/* 主内容区 */}
+      {/* 主内容区：包含顶部栏和子路由出口 */}
       <div className="custom-main">
         <header className="custom-header">
+          {/* 侧边栏折叠/展开按钮 */}
           {collapsed ? (
             <MenuUnfoldOutlined
               onClick={() => setCollapsed(false)}
@@ -100,12 +107,14 @@ function BackendLayout() {
               className="toggle-btn"
             />
           )}
+          {/* 用户下拉菜单 */}
           <Dropdown menu={{ items: userMenuItems, onClick: handleMenuClick }} trigger="hover" placement="bottomRight">
             <span className="user-dropdown">
               <UserOutlined /> Admin <DownOutlined />
             </span>
           </Dropdown>
         </header>
+        {/* 子路由内容渲染区域 */}
         <main className="custom-content">
           <Outlet />
         </main>
