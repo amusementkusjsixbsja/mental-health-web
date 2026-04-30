@@ -190,7 +190,7 @@ const [modalVisible, setModalVisible] = useState(false)
         scroll={{ x: 950 }}
       />
       {/* 新增知识库文章弹窗 */}
-      <CreateMdal visible={modalVisible} onCancel={()=>setModalVisible(false)} /> 
+      <CreateMdal visible={modalVisible} onCancel={()=>setModalVisible(false)} categoryList={categoryList} /> 
 
     </div>
   )

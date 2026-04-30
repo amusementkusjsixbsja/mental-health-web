@@ -1,0 +1,8 @@
+.ant-modal-container {
+  width: 600px;
+}
+/*向右对齐*/
+.articleModal {
+  width: 400px;
+  margin-left: auto;
+}
