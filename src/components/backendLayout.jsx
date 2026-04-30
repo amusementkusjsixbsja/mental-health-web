@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { Menu, Dropdown, message } from 'antd'
 import {
@@ -19,6 +19,9 @@ import './backendLayout.css'
 function BackendLayout() {
   // 控制侧边栏展开/折叠状态
   const [collapsed, setCollapsed] = useState(false)
+  const [headerHidden, setHeaderHidden] = useState(false)
+  const lastScrollTop = useRef(0)
+  const layoutRef = useRef(null)
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -70,8 +73,30 @@ function BackendLayout() {
     },
   ]
 
+  // 监听 layout 滚动，向下滚动隐藏顶栏，向上滚动显示
+  useEffect(() => {
+    const layout = layoutRef.current
+    if (!layout) return
+
+    const handleScroll = () => {
+      const scrollTop = layout.scrollTop
+      const delta = scrollTop - lastScrollTop.current
+
+      if (delta > 5 && scrollTop > 64) {
+        setHeaderHidden(true)
+      } else if (delta < -5 || scrollTop <= 64) {
+        setHeaderHidden(false)
+      }
+
+      lastScrollTop.current = scrollTop
+    }
+
+    layout.addEventListener('scroll', handleScroll, { passive: true })
+    return () => layout.removeEventListener('scroll', handleScroll)
+  }, [])
+
   return (
-    <div className="custom-layout">
+    <div className="custom-layout" ref={layoutRef}>
       {/* 自定义侧边栏：包含Logo和导航菜单 */}
       <aside className={`custom-sider ${collapsed ? 'collapsed' : ''}`}>
 
@@ -94,7 +119,7 @@ function BackendLayout() {
 
       {/* 主内容区：包含顶部栏和子路由出口 */}
       <div className="custom-main">
-        <header className="custom-header">
+        <header className={`custom-header ${headerHidden ? 'header-hidden' : ''}`}>
           {/* 侧边栏折叠/展开按钮 */}
           {collapsed ? (
             <MenuUnfoldOutlined

@@ -1,22 +1,28 @@
-/* 整体布局 */
+/* 整体布局：作为滚动容器，让侧边栏和顶栏都能使用 sticky */
 .custom-layout {
   display: flex;
   min-height: 100vh;
+  max-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
-/* 自定义侧边栏 */
+/* 自定义侧边栏：在 layout 滚动时固定在左侧 */
 .custom-sider {
   width: 200px;
-  min-height: 100vh;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  flex-shrink: 0;
   background: #001529;
   transition: width 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-  flex-shrink: 0;
   overflow: hidden;
 }
 
 .custom-sider.collapsed {
   width: 80px;
 }
+
 .custom-logo-container {
   height: 64px;
   display: flex;
@@ -24,10 +30,12 @@
   justify-content: center;
   background-color: #001529;
 }
+
 .sidebar-logo-icon {
   font-size: 26px;
   user-select: none;
 }
+
 /* Logo 区域 */
 .custom-logo {
   display: flex;
@@ -54,7 +62,7 @@
   border-right: none;
 }
 
-/* 主内容区 */
+/* 主内容区：布局滚动交由父级处理 */
 .custom-main {
   flex: 1;
   display: flex;
@@ -62,8 +70,14 @@
   min-width: 0;
 }
 
-/* 顶部栏 */
+/* 顶部栏：在 layout 滚动时固定在顶部 */
 .custom-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+
   height: 64px;
   background: #fff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
@@ -71,6 +85,10 @@
   justify-content: space-between;
   align-items: center;
   padding: 0 24px;
+}
+
+.custom-header.header-hidden {
+  transform: translateY(-100%);
 }
 
 .toggle-btn {

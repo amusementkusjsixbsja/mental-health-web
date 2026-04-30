@@ -3,6 +3,7 @@ import PageHead from '../components/pageHead'
 import { Button, Table, Pagination } from 'antd'
 import TableSearch from '../components/tableSearch'
 import { categoryTree, articlePage } from '@/api/admin.jsx'
+import CreateMdal from '@/components/articleModal.jsx'
 
 // 知识库管理页面：展示知识库列表，支持搜索、筛选、新增和删除操作
 function Knowledge() {
@@ -162,13 +163,16 @@ const columns = [
   },
 ];
 
+// 新增知识库文章弹窗
+const [modalVisible, setModalVisible] = useState(false)
+
+
   return (
     <div>
       {/* 页面头部：标题和操作按钮 */}
       <PageHead title="知识库">
         <div style={{ display: 'flex', gap: 8 }}>
-          <Button type="primary">新增</Button>
-          <Button type="primary">删除</Button>
+          <Button type="primary" onClick={()=>setModalVisible(true)}>新增</Button>
         </div>
       </PageHead>
 
@@ -183,8 +187,11 @@ const columns = [
         loading={loading}
         pagination={pagination}
         onChange={setPageChange}
-        scroll={{ x: 950 }}   
+        scroll={{ x: 950 }}
       />
+      {/* 新增知识库文章弹窗 */}
+      <CreateMdal visible={modalVisible} onCancel={()=>setModalVisible(false)} /> 
+
     </div>
   )
 }
