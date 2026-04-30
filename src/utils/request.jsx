@@ -27,7 +27,7 @@ request.interceptors.response.use(
   (response) => {
     const { data } = response
     // 请求成功（状态码200），返回data字段
-    if (data.code == 200) {
+    if (data.code === '200') {
       return data.data
     } else {
       // 业务错误，抛出异常信息
