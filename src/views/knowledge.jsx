@@ -3,10 +3,14 @@ import PageHead from '../components/pageHead'
 import { Button, Table, Pagination } from 'antd'
 import TableSearch from '../components/tableSearch'
 import { categoryTree, articlePage } from '@/api/admin.jsx'
-import CreateMdal from '@/components/articleModal.jsx'
+import ArticleModal from '@/components/articleModal.jsx'
 
 // 知识库管理页面：展示知识库列表，支持搜索、筛选、新增和删除操作
 function Knowledge() {
+
+  // 存储标签列表数据
+  const [tagList, setTagList] = useState([])
+  
   // 存储分类列表数据
   const [categoryList, setCategoryList] = useState([])
   // 控制加载状态
@@ -131,7 +135,7 @@ const columns = [
     dataIndex: 'authorName',
     key: 'authorName',
     width: 120,
-  },
+    },
   {
     title: '阅读量',
     dataIndex: 'readCount',
@@ -188,9 +192,9 @@ const [modalVisible, setModalVisible] = useState(false)
         pagination={pagination}
         onChange={setPageChange}
         scroll={{ x: 950 }}
-      />
+        />
       {/* 新增知识库文章弹窗 */}
-      <CreateMdal visible={modalVisible} onCancel={()=>setModalVisible(false)} categoryList={categoryList} /> 
+      <ArticleModal visible={modalVisible} onCancel={()=>setModalVisible(false)} categoryList={categoryList} /> 
 
     </div>
   )

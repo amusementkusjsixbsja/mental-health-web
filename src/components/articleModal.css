@@ -1,8 +1,75 @@
 .ant-modal-container {
   width: 600px;
 }
+
 /*向右对齐*/
 .articleModal {
   width: 400px;
   margin-left: auto;
+}
+
+/* 上传按钮容器：你想要的大小、背景、边框 */
+.cover-upload .ant-upload-select {
+  width: 200px !important;
+  height: 120px !important;
+  aspect-ratio: auto !important;
+  background: #f6f8fa;
+  border: 1px dashed #d9d9d9;
+  border-radius: 8px;
+}
+
+/* 按钮内部内容居中 */
+.cover-upload .ant-upload-select .button {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* 悬停效果 */
+.cover-upload .ant-upload-select:hover {
+  border-color: #4096ff;
+  background: #eef2f5;
+}
+
+/* 缩略图容器 */
+.cover-upload .ant-upload-list-item-container,
+.cover-upload .ant-upload-list-item {
+  width: 200px !important;
+  height: 120px !important;
+  aspect-ratio: auto !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* 缩略图的包裹层 */
+.cover-upload .ant-upload-list-item-thumbnail {
+  width: 100%;
+  height: 100%;
+}
+
+/* 缩略图内部的图片 */
+.cover-upload .ant-upload-list-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* 裁剪填充，不变形 */
+}
+
+/* 缩略图上的遮罩（鼠标悬停时显示"预览""删除"） */
+.cover-upload .ant-upload-list-item .ant-upload-list-item-actions {
+  /* 这里可以改遮罩样式，或者直接 display: none 隐藏 */
+}
+
+.cover-placeholder {
+  /*去掉边框*/
+  border: none;
+  /*去掉背景*/
+  background: transparent;
+  color: rgb(177, 181, 185);
 }
