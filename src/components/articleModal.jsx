@@ -52,7 +52,7 @@ const ArticleModal = ({ visible, onCancel, categoryList, article, onRefresh }) =
       setCoverFileList([])
     }
   }, [visible])
-
+// 关闭弹窗时，清除数据
   const handleClose = () => {
     form.resetFields()
     setContentHtml('')
@@ -116,7 +116,7 @@ const ArticleModal = ({ visible, onCancel, categoryList, article, onRefresh }) =
       <div>上传封面</div>
     </button>
   )
-
+// 关闭弹窗
   const handleCancel = () => {
     onCancel()
   }

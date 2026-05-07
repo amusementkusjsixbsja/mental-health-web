@@ -40,3 +40,11 @@ export function articleDetail(id) {
 export function updateArticle(id, data) {
   return service.put(`/knowledge/article/${id}`, data)
 }
+//更新文章状态
+export function updateArticleStatus(id, status) {
+  return service.put(`/knowledge/article/${id}/status`, { status })
+}
+//删除文章
+export function deleteArticle(id) {
+  return service.delete(`/knowledge/article/${id}`)
+}

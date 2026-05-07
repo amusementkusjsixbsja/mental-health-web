@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import PageHead from '../components/pageHead'
-import { Button, Table } from 'antd'
+import { Button, Modal, Table, message } from 'antd'
 import TableSearch from '../components/tableSearch'
-import { categoryTree, articlePage, articleDetail } from '@/api/admin.jsx'
+import { categoryTree, articlePage, articleDetail, updateArticleStatus, deleteArticle } from '@/api/admin.jsx'
 import ArticleModal from '@/components/articleModal.jsx'
 
 // 知识库管理页面：展示知识库列表，支持搜索、筛选、新增和删除操作
@@ -151,15 +151,83 @@ function Knowledge() {
       render: (text, record) => (
         <span>
           <a onClick={() => handleEdit(record)}>编辑</a>
-          {record.status === 2 ? (
-            <a key="unpublish" style={{ marginLeft: 8, color: 'green' }}>下线</a>
+          {record.status === 1 ? (
+            <a key="unpublish" onClick={() => handleUnPublish(record)} style={{ marginLeft: 8, color: 'green' }}>下线</a>
           ) : (
-            <a key="publish" style={{ marginLeft: 8, color: 'orange' }}>发布</a>
+            <a key="publish" onClick={() => handlePublish(record)} style={{ marginLeft: 8, color: 'orange' }}>发布</a>
           )}
+          <a key="delete" style={{ marginLeft: 10, color: 'red' }} onClick={() => handleDelete(record)}>删除</a>
         </span>
       ),
     },
   ];
+
+
+//删除文章
+const handleDelete = async (record) => {
+  Modal.confirm({
+    title: '确认删除',
+    content: '确定要删除这篇文章吗？',
+    onOk: async () => {
+      // 确认后的逻辑
+      try {
+        await deleteArticle(record.id)
+        fetchArticleList(searchValues, pagination.current, pagination.pageSize)
+        message.success('删除成功')
+      } catch (error) {
+        message.error(error.message || '删除失败')
+      }
+    },
+    onCancel: () => {
+      console.log('取消删除')
+    },
+  })
+}
+
+
+  //更新发布状态
+  const handlePublish = async (record) => {
+    //确认操作
+    Modal.confirm({
+      title: '确认发布',
+      content: '确定要发布这篇文章吗？',
+      onOk: async () => {
+        // 确认后的逻辑
+        try {
+          await updateArticleStatus(record.id, 1)
+          fetchArticleList(searchValues, pagination.current, pagination.pageSize)
+          message.success('发布成功')
+        } catch (error) {
+          message.error(error.message || '发布失败')
+        }
+      },
+      onCancel: () => {
+        console.log('取消发布')
+      },
+    })
+  }
+
+  //更新下线状态
+  const handleUnPublish = async (record) => {
+    //确认操作
+    Modal.confirm({
+      title: '确认下线',
+      content: '确定要下线这篇文章吗？',
+      onOk: async () => {
+        // 确认后的逻辑
+        try {
+          await updateArticleStatus(record.id, 2)
+          fetchArticleList(searchValues, pagination.current, pagination.pageSize)
+          message.success('下线成功')
+        } catch (error) {
+          message.error(error.message || '下线失败')
+        }
+      },
+      onCancel: () => {
+        console.log('取消下线')
+      }, 
+    })
+  }
 
   // 新增知识库文章弹窗
   const [modalVisible, setModalVisible] = useState(false)
