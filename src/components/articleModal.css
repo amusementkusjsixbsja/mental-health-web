@@ -1,11 +1,10 @@
-.ant-modal-container {
-  width: 600px;
+.articleModal {
+  width: 100%;
 }
 
-/*向右对齐*/
-.articleModal {
-  width: 400px;
-  margin-left: auto;
+.editor-wrapper {
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
 }
 
 /* 上传按钮容器：你想要的大小、背景、边框 */

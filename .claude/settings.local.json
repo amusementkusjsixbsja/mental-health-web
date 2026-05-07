@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -oP '.{0,100}repeated create.{0,200}' \"node_modules/@wangeditor/core/dist/index.esm.js\")",
+      "Bash(grep -o '.\\\\{0,100\\\\}repeated create.\\\\{0,200\\\\}' \"node_modules/@wangeditor/core/dist/index.esm.js\")",
+      "Bash(grep -o \"repeated create [a-z]*\\\\\\\\|repeated create\" \"node_modules/@wangeditor/core/dist/index.esm.js\")",
+      "Bash(rg \"repeated\" \"node_modules/@wangeditor/core/dist/index.esm.js\" -i)",
+      "Bash(rg \"repeated\" \"node_modules/@wangeditor/core/dist/index.js\" -i)",
+      "Bash(rg \"repeated\" \"node_modules/@wangeditor/editor/dist/index.esm.js\" -i)",
+      "Bash(rg \"repeated\" \"node_modules/@wangeditor/editor/dist/index.js\" -i)",
+      "Bash(rg -c \"repeated\" \"node_modules/@wangeditor/core/dist/index.esm.js.map\")",
+      "Bash(wc -c \"node_modules/@wangeditor/core/dist/index.esm.js.map\")"
+    ]
+  }
+}

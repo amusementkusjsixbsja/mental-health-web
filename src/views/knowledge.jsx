@@ -7,9 +7,6 @@ import ArticleModal from '@/components/articleModal.jsx'
 
 // 知识库管理页面：展示知识库列表，支持搜索、筛选、新增和删除操作
 function Knowledge() {
-
-  // 存储标签列表数据
-  const [tagList, setTagList] = useState([])
   
   // 存储分类列表数据
   const [categoryList, setCategoryList] = useState([])
@@ -194,7 +191,7 @@ const [modalVisible, setModalVisible] = useState(false)
         scroll={{ x: 950 }}
         />
       {/* 新增知识库文章弹窗 */}
-      <ArticleModal visible={modalVisible} onCancel={()=>setModalVisible(false)} categoryList={categoryList} /> 
+      <ArticleModal visible={modalVisible} onCancel={()=>setModalVisible(false)} categoryList={categoryList}  /> 
 
     </div>
   )
