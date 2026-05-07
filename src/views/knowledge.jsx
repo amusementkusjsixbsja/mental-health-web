@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import PageHead from '../components/pageHead'
-import { Button, Table, Pagination } from 'antd'
+import { Button, Table } from 'antd'
 import TableSearch from '../components/tableSearch'
-import { categoryTree, articlePage } from '@/api/admin.jsx'
+import { categoryTree, articlePage, articleDetail } from '@/api/admin.jsx'
 import ArticleModal from '@/components/articleModal.jsx'
 
 // 知识库管理页面：展示知识库列表，支持搜索、筛选、新增和删除操作
 function Knowledge() {
-  
+
   // 存储分类列表数据
   const [categoryList, setCategoryList] = useState([])
   // 控制加载状态
@@ -44,7 +44,6 @@ function Knowledge() {
     try {
       setLoading(true)
       const res = await categoryTree()
-      console.log('知识库分类原始数据:', res)
 
       // 兼容不同的响应数据格式
       const dataList = res?.data || res || []
@@ -72,11 +71,9 @@ function Knowledge() {
       setLoading(true)
       // 调用知识库列表接口
       const res = await articlePage({ ...values, currentPage: current, size: pageSize })
-      console.log('知识库列表原始数据:', res)
       // 根据API返回的数据结构：res = { records: [...], total: ... }
       // 从 records 字段提取文章列表
       const dataList = res?.records || []
-      console.log('最终处理的数据列表:', dataList)
       setTableData(dataList)
       setPagination(prev => ({
         ...prev,
@@ -110,62 +107,76 @@ function Knowledge() {
   }
 
 
-// 表格列配置（带宽度和响应式滚动）
-const columns = [
-  {
-    title: '文章标题',
-    dataIndex: 'title',
-    key: 'title',
-    width: 280,                    // 固定宽度，不随滚动变化
-    fixed: 'left',                 // 左侧固定（可选，让标题列始终可见）
-    render: text => <a>{text}</a>,
-  },
-  {
-    title: '分类',
-    dataIndex: 'categoryName',
-    key: 'categoryName',
-    width: 120,
-    render: text => <span>{text}</span>,
-  },
-  {
-    title: '作者',
-    dataIndex: 'authorName',
-    key: 'authorName',
-    width: 120,
+  // 表格列配置（带宽度和响应式滚动）
+  const columns = [
+    {
+      title: '文章标题',
+      dataIndex: 'title',
+      key: 'title',
+      width: 280,                    // 固定宽度，不随滚动变化
+      fixed: 'left',                 // 左侧固定（可选，让标题列始终可见）
+      render: text => <a>{text}</a>,
     },
-  {
-    title: '阅读量',
-    dataIndex: 'readCount',
-    key: 'readCount',
-    width: 100,
-    align: 'center',               // 阅读量居中对齐
-  },
-  {
-    title: '发布时间',
-    dataIndex: 'publishedAt',
-    key: 'publishedAt',
-    width: 180,
-  },
-  {
-    title: '操作',
-    key: 'action',
-    width: 150,                    // 固定宽度
-    fixed: 'right',                // 右侧固定，方便操作
-    render: (text, record) => (
-      <span>
-        <a>编辑</a>
-        {record.status === 2 ? (
-          <a key="unpublish" style={{ marginLeft: 8, color: 'green' }}>下线</a>
-        ) : (
-          <a key="publish" style={{ marginLeft: 8, color: 'orange' }}>发布</a>
-        )}
-      </span>
-    ),
-  },
-];
+    {
+      title: '分类',
+      dataIndex: 'categoryName',
+      key: 'categoryName',
+      width: 120,
+      render: text => <span>{text}</span>,
+    },
+    {
+      title: '作者',
+      dataIndex: 'authorName',
+      key: 'authorName',
+      width: 120,
+    },
+    {
+      title: '阅读量',
+      dataIndex: 'readCount',
+      key: 'readCount',
+      width: 100,
+      align: 'center',               // 阅读量居中对齐
+    },
+    {
+      title: '发布时间',
+      dataIndex: 'publishedAt',
+      key: 'publishedAt',
+      width: 180,
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: 150,                    // 固定宽度
+      fixed: 'right',                // 右侧固定，方便操作
+      render: (text, record) => (
+        <span>
+          <a onClick={() => handleEdit(record)}>编辑</a>
+          {record.status === 2 ? (
+            <a key="unpublish" style={{ marginLeft: 8, color: 'green' }}>下线</a>
+          ) : (
+            <a key="publish" style={{ marginLeft: 8, color: 'orange' }}>发布</a>
+          )}
+        </span>
+      ),
+    },
+  ];
 
-// 新增知识库文章弹窗
-const [modalVisible, setModalVisible] = useState(false)
+  // 新增知识库文章弹窗
+  const [modalVisible, setModalVisible] = useState(false)
+  //当前文章
+  const [currentArticle, setCurrentArticle] = useState({})
+
+  //编辑文章功能
+  const handleEdit = async (record) => {
+    try {
+      const res = await articleDetail(record.id)
+      setModalVisible(true)
+      setCurrentArticle(res)
+    } catch (error) {
+      console.error('获取文章详情失败:', error)
+    }
+  }
+
 
 
   return (
@@ -173,7 +184,7 @@ const [modalVisible, setModalVisible] = useState(false)
       {/* 页面头部：标题和操作按钮 */}
       <PageHead title="知识库">
         <div style={{ display: 'flex', gap: 8 }}>
-          <Button type="primary" onClick={()=>setModalVisible(true)}>新增</Button>
+          <Button type="primary" onClick={() => { setModalVisible(true); setCurrentArticle({}) }}>新增</Button>
         </div>
       </PageHead>
 
@@ -189,9 +200,9 @@ const [modalVisible, setModalVisible] = useState(false)
         pagination={pagination}
         onChange={setPageChange}
         scroll={{ x: 950 }}
-        />
+      />
       {/* 新增知识库文章弹窗 */}
-      <ArticleModal visible={modalVisible} onCancel={()=>setModalVisible(false)} categoryList={categoryList}  /> 
+      <ArticleModal visible={modalVisible} onCancel={() => setModalVisible(false)} categoryList={categoryList} article={currentArticle} onRefresh={() => fetchArticleList(searchValues, pagination.current, pagination.pageSize)} />
 
     </div>
   )

@@ -23,7 +23,7 @@ const editorConfig = {
   maxLength: 5000,
 }
 
-const RichEditor = ({ onChange }) => {
+const RichEditor = ({ value = '', onChange }) => {
   const [editor, setEditor] = useState(null)
 
   useEffect(() => {
@@ -44,6 +44,7 @@ const RichEditor = ({ onChange }) => {
       />
       <Editor
         defaultConfig={editorConfig}
+        value={value}
         onCreated={setEditor}
         onChange={editor => onChange(editor.getHtml())}
         mode="default"

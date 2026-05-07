@@ -32,3 +32,11 @@ export function addArticle(data) {
   return service.post('/knowledge/article', data
   )
 }
+//获取知识库文章详情
+export function articleDetail(id) {
+  return service.get(`/knowledge/article/${id}`)
+}
+// 更新知识库文章
+export function updateArticle(id, data) {
+  return service.put(`/knowledge/article/${id}`, data)
+}

@@ -1,10 +1,9 @@
 import { Modal, Form, Input, Select, message, Button, Upload, Image } from 'antd'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './articleModal.css'
-import { uploadFile, addArticle } from '@/api/admin.jsx'
+import { uploadFile, addArticle, updateArticle } from '@/api/admin.jsx'
 import { fileUploadUrl } from '@/config/index.jsx'
 import RichEditor from './RichEditor'
-import { ControlOutlined } from '@ant-design/icons'
 
 const TAG_OPTIONS = [
   { label: '焦虑症', value: '0' },
@@ -19,7 +18,7 @@ const TAG_OPTIONS = [
   { label: '正念冥想', value: '9' },
 ]
 
-const ArticleModal = ({ visible, onCancel, categoryList }) => {
+const ArticleModal = ({ visible, onCancel, categoryList, article, onRefresh }) => {
   const [form] = Form.useForm()
   const { TextArea } = Input
 
@@ -27,6 +26,40 @@ const ArticleModal = ({ visible, onCancel, categoryList }) => {
   const [previewImage, setPreviewImage] = useState('')
   const [coverFileList, setCoverFileList] = useState([])
   const [contentHtml, setContentHtml] = useState('')
+
+  const isEdit = !!article?.id
+
+  useEffect(() => {
+    if (!visible) return
+
+    if (article?.id) {
+      setContentHtml(article.content || '')
+      setCoverFileList(article.coverImage ? [{
+        uid: article.id,
+        name: article.title,
+        status: 'done',
+        url: fileUploadUrl + article.coverImage,
+      }] : [])
+      form.setFieldsValue({
+        ...article,
+        tags: typeof article.tags === 'string'
+          ? article.tags.split(',').filter(Boolean)
+          : (article.tags || []),
+      })
+    } else {
+      form.resetFields()
+      setContentHtml('')
+      setCoverFileList([])
+    }
+  }, [visible])
+
+  const handleClose = () => {
+    form.resetFields()
+    setContentHtml('')
+    setCoverFileList([])
+    setPreviewImage('')
+    setPreviewOpen(false)
+  }
 
   const getBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -60,12 +93,13 @@ const ArticleModal = ({ visible, onCancel, categoryList }) => {
     const businessId = crypto.randomUUID()
     try {
       const res = await uploadFile(file, { businessId })
-      setCoverFileList([{
-        uid: businessId,
-        name: file.name,
-        status: 'done',
-        url: fileUploadUrl + res.filePath,
-      }])
+      const newFile = {
+      uid: businessId,
+      name: file.name,
+      status: 'done',
+      url: fileUploadUrl + res.filePath,
+    }
+    setCoverFileList([newFile]) 
     } catch (error) {
       message.error(error.message || '上传失败')
       return false
@@ -74,34 +108,45 @@ const ArticleModal = ({ visible, onCancel, categoryList }) => {
   }
 
   const handleCoverChange = ({ fileList: newFileList }) => {
-    if (newFileList.length === 0) {
-      setCoverFileList([])
-    }
+    setCoverFileList(newFileList)
   }
 
   const uploadButton = (
     <button className="cover-placeholder" type="button">
-      <div >上传封面</div>
+      <div>上传封面</div>
     </button>
   )
 
   const handleCancel = () => {
-    setCoverFileList([])
-    setPreviewImage('')
-    setPreviewOpen(false)
-    setContentHtml('')
-    form.resetFields()
     onCancel()
   }
 
   const handleSubmit = async (values) => {
-    values.content = contentHtml
-    values.id = ''
-    values.tags = values.tags.join(',')
-    // console.log(values)
+    const formData = {
+      title: values.title,
+      categoryId: Number(values.categoryId),
+      summary: values.summary || '',
+      tags: Array.isArray(values.tags) ? values.tags.join(',') : (values.tags || ''),
+      coverImage: coverFileList[0]?.url?.replace(fileUploadUrl, '') || '',
+      content: contentHtml,
+      id: isEdit ? article.id : crypto.randomUUID(),
+    }
+
+    if (isEdit) {
+      try {
+        await updateArticle(formData.id, formData)
+        message.success('编辑成功')
+        onRefresh()
+        handleCancel()
+      } catch (error) {
+        message.error(error.message || '编辑失败')
+      }
+      return
+    }
     try {
-      await addArticle(values)
+      await addArticle(formData)
       message.success('新增成功')
+      onRefresh()
       handleCancel()
     } catch (error) {
       message.error(error.message || '新增失败')
@@ -110,90 +155,82 @@ const ArticleModal = ({ visible, onCancel, categoryList }) => {
 
   return (
     <Modal
-      title="新增知识库文章"
+      title={isEdit ? '编辑知识库文章' : '新增知识库文章'}
       open={visible}
       onCancel={handleCancel}
       footer={null}
       width={720}
-      destroyOnClose>
+      destroyOnHidden
+      afterClose={handleClose}>
       <Form
         form={form}
         labelCol={{ span: 6, style: { textAlign: 'right' } }}
         wrapperCol={{ span: 18 }}
-        onFinish={handleSubmit}
-      >
+        onFinish={handleSubmit}>
         <Form.Item
           label="文章标题"
           name="title"
           rules={[{ required: true, message: '请输入文章标题' }]}
-          className="articleModal"
-        >
+          className="articleModal">
           <Input placeholder="请输入文章标题" maxLength={200} showCount />
         </Form.Item>
         <Form.Item
           label="所属分类"
           name="categoryId"
           rules={[{ required: true, message: '请选择所属分类' }]}
-          className="articleModal"
-        >
+          className="articleModal">
           <Select placeholder="请选择所属分类" options={categoryList} />
         </Form.Item>
         <Form.Item
           label="文章摘要"
           name="summary"
           rules={[{ required: false, message: '请输入文章摘要' }]}
-          className="articleModal"
-        >
+          className="articleModal">
           <TextArea placeholder="请输入文章摘要" autoSize={{ minRows: 4, maxRows: 4 }} />
         </Form.Item>
         <Form.Item
           label="标签"
           name="tags"
           rules={[{ required: false, message: '请输入标签' }]}
-          className="articleModal"
-        >
+          className="articleModal">
           <Select placeholder="请选择标签" mode="multiple" options={TAG_OPTIONS} />
         </Form.Item>
         <Form.Item
           label="文章封面"
           name="coverImage"
-          rules={[{ required: true, message: '请上传文章封面' }]}
-          className="articleModal"
-        >
+          rules={[{ required: false, message: '请上传文章封面' }]}
+          className="articleModal">
           <div style={{ width: 200, height: 120, overflow: 'hidden' }}>
             <Upload
               listType="picture-card"
               fileList={coverFileList}
               onPreview={handlePreview}
-              onChange={handleCoverChange}
+            onChange={handleCoverChange}
               beforeUpload={beforeUpload}
               maxCount={1}
-              className="cover-upload"
-            >
+              className="cover-upload">
               {coverFileList.length >= 1 ? null : uploadButton}
             </Upload>
           </div>
         </Form.Item>
-
         <Form.Item
           label="文章内容"
-          rules={[{ required: true, message: '请输入文章内容' }]}
+          rules={[{ required: !isEdit, message: '请输入文章内容' }]}
           className="articleModal"
-          name="content"
-        >
-          <RichEditor onChange={setContentHtml} />
+          name="content">
+          <RichEditor value={contentHtml} onChange={setContentHtml} />
         </Form.Item>
-
-        <Image
-          style={{ display: 'none' }}
-          preview={{
-            open: previewOpen,
-            onOpenChange: (open) => setPreviewOpen(open),
-          }}
-          src={previewImage}
-        />
-
-        <Button type="primary" htmlType="submit" >新增</Button>
+        
+          <Image
+            style={{ display: 'none' }}
+            preview={{
+              open: previewOpen,
+              onOpenChange: (open) => setPreviewOpen(open),
+            }}
+            src={previewImage}
+          />
+          
+        <Button type="primary" htmlType="submit">{isEdit ? '编辑' : '新增'}</Button>
       </Form>
     </Modal>
   )
