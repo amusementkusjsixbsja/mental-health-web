@@ -27,3 +27,8 @@ export function uploadFile(file, params) {
     }
   })
 }
+// 新增知识库文章
+export function addArticle(data) {
+  return service.post('/knowledge/article', data
+  )
+}

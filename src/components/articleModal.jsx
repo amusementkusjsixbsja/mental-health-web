@@ -1,21 +1,22 @@
 import { Modal, Form, Input, Select, message, Button, Upload, Image } from 'antd'
 import { useState } from 'react'
 import './articleModal.css'
-import { uploadFile } from '@/api/admin.jsx'
+import { uploadFile, addArticle } from '@/api/admin.jsx'
 import { fileUploadUrl } from '@/config/index.jsx'
 import RichEditor from './RichEditor'
+import { ControlOutlined } from '@ant-design/icons'
 
 const TAG_OPTIONS = [
-  { label: '焦虑症', value: 'anxiety' },
-  { label: '抑郁症', value: 'depression' },
-  { label: '强迫症', value: 'ocd' },
-  { label: '失眠', value: 'insomnia' },
-  { label: '情绪管理', value: 'emotion' },
-  { label: '人际关系', value: 'relationship' },
-  { label: '自我成长', value: 'self-growth' },
-  { label: '压力管理', value: 'stress' },
-  { label: '心理咨询', value: 'counseling' },
-  { label: '正念冥想', value: 'mindfulness' },
+  { label: '焦虑症', value: '0' },
+  { label: '抑郁症', value: '1' },
+  { label: '强迫症', value: '2' },
+  { label: '失眠', value: '3' },
+  { label: '情绪管理', value: '4' },
+  { label: '人际关系', value: '5' },
+  { label: '自我成长', value: '6' },
+  { label: '压力管理', value: '7' },
+  { label: '心理咨询', value: '8' },
+  { label: '正念冥想', value: '9' },
 ]
 
 const ArticleModal = ({ visible, onCancel, categoryList }) => {
@@ -93,6 +94,20 @@ const ArticleModal = ({ visible, onCancel, categoryList }) => {
     onCancel()
   }
 
+  const handleSubmit = async (values) => {
+    values.content = contentHtml
+    values.id = ''
+    values.tags = values.tags.join(',')
+    // console.log(values)
+    try {
+      await addArticle(values)
+      message.success('新增成功')
+      handleCancel()
+    } catch (error) {
+      message.error(error.message || '新增失败')
+    }
+  }
+
   return (
     <Modal
       title="新增知识库文章"
@@ -105,6 +120,7 @@ const ArticleModal = ({ visible, onCancel, categoryList }) => {
         form={form}
         labelCol={{ span: 6, style: { textAlign: 'right' } }}
         wrapperCol={{ span: 18 }}
+        onFinish={handleSubmit}
       >
         <Form.Item
           label="文章标题"
@@ -140,7 +156,7 @@ const ArticleModal = ({ visible, onCancel, categoryList }) => {
         </Form.Item>
         <Form.Item
           label="文章封面"
-          name="cover"
+          name="coverImage"
           rules={[{ required: true, message: '请上传文章封面' }]}
           className="articleModal"
         >
@@ -163,6 +179,7 @@ const ArticleModal = ({ visible, onCancel, categoryList }) => {
           label="文章内容"
           rules={[{ required: true, message: '请输入文章内容' }]}
           className="articleModal"
+          name="content"
         >
           <RichEditor onChange={setContentHtml} />
         </Form.Item>
@@ -176,8 +193,8 @@ const ArticleModal = ({ visible, onCancel, categoryList }) => {
           src={previewImage}
         />
 
+        <Button type="primary" htmlType="submit" >新增</Button>
       </Form>
-      <Button type="primary" htmlType="submit">新增</Button>
     </Modal>
   )
 }
