@@ -257,10 +257,8 @@ const handleDelete = async (record) => {
           <Button type="primary" onClick={() => { setModalVisible(true); setCurrentArticle({}) }}>新增</Button>
         </div>
       </PageHead>
-
       {/* 搜索筛选表单 */}
       <TableSearch Config={searchConfig} onSearch={handleSearch} />
-
       {/* 数据表格 */}
       <Table
         columns={columns}

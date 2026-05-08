@@ -56,3 +56,7 @@ export function consultPage(params) {
 export function consultDetail(id) {
   return service.get(`/psychological-chat/sessions/${id}/messages`)
 }
+//分页查询用户情绪日志
+export function emotionalPage(params) {
+  return service.get('/emotion-diary/admin/page', { params })
+}
