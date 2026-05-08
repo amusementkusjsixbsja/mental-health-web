@@ -52,3 +52,7 @@ export function deleteArticle(id) {
 export function consultPage(params) {
   return service.get('/psychological-chat/sessions', { params })
 }
+//获取咨询会话详情
+export function consultDetail(id) {
+  return service.get(`/psychological-chat/sessions/${id}/messages`)
+}

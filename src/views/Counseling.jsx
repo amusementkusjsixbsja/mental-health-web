@@ -1,5 +1,6 @@
 import { consultPage } from '@/api/admin'
 import PageHead from '@/components/pageHead.jsx'
+import ChatModal from '@/components/chatModal.jsx'
 import { Table, message, Pagination } from 'antd'
 import { useState, useEffect, useRef } from 'react'
 
@@ -102,12 +103,15 @@ function Counseling() {
       fixed: 'right',
       render: (text, record) => (
         <div>
-          <a type="primary" size="small">查看详情</a>
+          <a onClick={ () => { setRecordId(record.id); setSessionInfo(record); setVisible(true)}} type="primary" size="small">查看详情</a>
         </div>
       ),
-    },
+    },  
   ]
-
+//咨询记录详情弹窗
+const [visible, setVisible] = useState(false)
+const [recordId, setRecordId] = useState('')
+const [sessionInfo, setSessionInfo] = useState({})
 
 return (
   <div>
@@ -118,9 +122,10 @@ return (
       columns={columns}
       dataSource={consultList}
       loading={loading}
-      rowKey={(record, index) => record.id}
+      rowKey={(record) => record.id}
       size="small"
     ></Table>
+    <ChatModal visible={visible} onCancel={() => setVisible(false)} id={recordId} sessionInfo={sessionInfo} />
   </div>
 )
 }
