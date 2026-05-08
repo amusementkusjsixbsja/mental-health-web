@@ -30,16 +30,22 @@ request.interceptors.response.use(
     if (data.code === '200') {
       return data.data
     } else {
-      // 业务错误，抛出异常信息
+      // code 为 -1 表示未登录，清除 token 并跳转登录页
+      if (data.code === '-1') {
+        localStorage.removeItem('token')
+        localStorage.removeItem('userInfo')
+        window.location.href = '/Auth/login'
+      }
       return Promise.reject(new Error(data.message || data.msg || '请求失败'))
     }
   },
   (error) => {
+    console.log('error')
     // 处理HTTP错误响应
     if (error.response) {
       const status = error.response.status
-      // 401未授权：清除本地存储并跳转登录页
-      if (status === 401) {
+      // 401未授权或code为-1：清除本地存储并跳转登录页
+      if (status === 401 || error.response.data?.code === '-1') {
         localStorage.removeItem('token')
         localStorage.removeItem('userInfo')
         window.location.href = '/Auth/login'

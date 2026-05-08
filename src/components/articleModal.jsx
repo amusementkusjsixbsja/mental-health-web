@@ -21,7 +21,6 @@ const TAG_OPTIONS = [
 const ArticleModal = ({ visible, onCancel, categoryList, article, onRefresh }) => {
   const [form] = Form.useForm()
   const { TextArea } = Input
-
   const [previewOpen, setPreviewOpen] = useState(false)
   const [previewImage, setPreviewImage] = useState('')
   const [coverFileList, setCoverFileList] = useState([])
