@@ -77,7 +77,9 @@ function Knowledge() {
       setTableData(dataList)
       setPagination(prev => ({
         ...prev,
-        total: res?.total || 0
+        total: res?.total || 0,
+        current: current,
+        pageSize: pageSize,
       }))
     } catch (error) {
       console.error('获取知识库列表失败:', error)

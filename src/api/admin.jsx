@@ -48,3 +48,7 @@ export function updateArticleStatus(id, status) {
 export function deleteArticle(id) {
   return service.delete(`/knowledge/article/${id}`)
 }
+//分页查询咨询会话
+export function consultPage(params) {
+  return service.get('/psychological-chat/sessions', { params })
+}
