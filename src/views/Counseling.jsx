@@ -1,8 +1,8 @@
 import { consultPage } from '@/api/admin'
 import PageHead from '@/components/pageHead.jsx'
 import ChatModal from '@/components/chatModal.jsx'
-import { Table, message, Pagination } from 'antd'
-import { useState, useEffect, useRef } from 'react'
+import { Table, message } from 'antd'
+import { useState, useEffect } from 'react'
 
 // 心理咨询页面：提供在线咨询、预约和心理测评功能（待开发）
 function Counseling() {
@@ -99,7 +99,7 @@ function Counseling() {
     {
       title: '操作',
       key: 'operation',
-      width: 60,                    // 固定宽度，不随滚动变化
+      width: 80,                    // 固定宽度，不随滚动变化
       fixed: 'right',
       render: (text, record) => (
         <div>
@@ -124,6 +124,7 @@ return (
       loading={loading}
       rowKey={(record) => record.id}
       size="small"
+      scroll={{ x: 950 }}
     ></Table>
     <ChatModal visible={visible} onCancel={() => setVisible(false)} id={recordId} sessionInfo={sessionInfo} />
   </div>

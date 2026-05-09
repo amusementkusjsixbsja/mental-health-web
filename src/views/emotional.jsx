@@ -1,5 +1,5 @@
 import PageHead from "@/components/pageHead"
-import { emotionalPage ,deleteEmotionalById} from "@/api/admin"
+import { emotionalPage ,deleteEmotional} from "@/api/admin"
 import { useState, useEffect } from "react"
 import { Table, message, Button, Modal, Descriptions, Badge, Tag, Progress } from "antd"
 import TableSearch from "@/components/tableSearch"
@@ -109,7 +109,7 @@ function Emotional() {
   // 删除情绪日志
   const deleteEmotional = async (id) => {
     try {
-      await deleteEmotionalById(id)
+      await deleteEmotional(id)
       message.success('删除成功')
       fetchEmotionalList(searchValues, pagination.current, pagination.pageSize)
     } catch (error) {

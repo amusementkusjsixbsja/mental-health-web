@@ -65,3 +65,7 @@ export function emotionalPage(params) {
 export function deleteEmotional(id) {
   return service.delete(`/emotion-diary/admin/${id}`)
 }
+//获取数据分析
+export function getAnalysis() {
+  return service.get('/data-analytics/overview')
+}
