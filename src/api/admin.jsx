@@ -4,7 +4,10 @@ import service from '@/utils/request.jsx'
 export function login(data) {
   return service.post('/user/login', data)
 }
-
+//用户退出登录接口
+export function logout() {
+  return service.post('/user/logout')
+}
 // 获取知识库分类树接口
 export function categoryTree() {
   return service.get('/knowledge/category/tree')

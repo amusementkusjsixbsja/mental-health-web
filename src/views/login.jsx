@@ -29,9 +29,9 @@ function Login() {
         }
 
       }
-    }).catch((err) => {
+      }).catch((err) => {
       // 登录失败提示
-      message.error(err.message || '用户名或密码错误')
+      message.error(err.message || '请先登录')
     })
   }
 

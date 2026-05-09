@@ -36,7 +36,7 @@ request.interceptors.response.use(
         localStorage.removeItem('userInfo')
         window.location.href = '/Auth/login'
       }
-      return Promise.reject(new Error(data.message || data.msg || '请求失败'))
+      return Promise.reject(new Error(data.message || data.msg || '请先登录'))
     }
   },
   (error) => {

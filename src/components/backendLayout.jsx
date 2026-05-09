@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
+import { logout } from '@/api/admin.jsx'
 import { Menu, Dropdown, message } from 'antd'
 import {
   MenuFoldOutlined,
@@ -27,10 +28,14 @@ function BackendLayout() {
 
   // 处理用户退出登录
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('userInfo')
-    message.success('退出登录成功')
-    navigate('/Auth/login')
+    logout().then(() => {
+      localStorage.removeItem('token')
+      localStorage.removeItem('userInfo')
+      message.success('退出登录成功')
+      navigate('/Auth/login')
+    }).catch((err) => {
+      message.error(err.message || '退出登录失败')
+    })
   }
 
   // 用户下拉菜单项配置
