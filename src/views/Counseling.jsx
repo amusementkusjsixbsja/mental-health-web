@@ -5,7 +5,7 @@ import { Table, message } from 'antd'
 import { useState, useEffect } from 'react'
 
 // 心理咨询页面：提供在线咨询、预约和心理测评功能（待开发）
-function Counseling() {
+function Consultation() {
   //加载咨询记录
   const [loading, setLoading] = useState(false)
   const [consultList, setConsultList] = useState([])
@@ -130,5 +130,4 @@ return (
   </div>
 )
 }
-
-export default Counseling
+export default Consultation

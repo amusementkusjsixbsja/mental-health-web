@@ -38,7 +38,7 @@ function Login() {
   return (
     <div className="login-container">
       {/* 返回首页链接 */}
-      <Link to="/" className="back-link">
+      <Link to="/front" className="back-link">
         ←返回首页
       </Link>
 

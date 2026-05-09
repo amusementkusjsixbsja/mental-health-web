@@ -5,6 +5,7 @@ import heroImg from './assets/hero.png'
 import './App.css'
 import { Button, message } from 'antd'
 import BackendLayout from './components/backendLayout.jsx'
+import FrontendLayout from './components/frontendLayout.jsx'
 
 // 主应用组件（当前作为临时测试使用，实际路由由router/index.jsx管理）
 function App() {
@@ -14,6 +15,9 @@ function App() {
     <div>
       <div>
         <BackendLayout />
+      </div>
+      <div>
+        <FrontendLayout />
       </div>
     </div>
   )

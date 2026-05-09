@@ -62,7 +62,7 @@ function BackendLayout() {
       label: '数据看板',
     },
     {
-      key: '/back/cousutation',
+      key: '/back/consultation',
       icon: <MessageOutlined />,
       label: '咨询管理',
     },
