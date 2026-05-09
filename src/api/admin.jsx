@@ -60,3 +60,8 @@ export function consultDetail(id) {
 export function emotionalPage(params) {
   return service.get('/emotion-diary/admin/page', { params })
 }
+
+//删除用户情绪日志
+export function deleteEmotional(id) {
+  return service.delete(`/emotion-diary/admin/${id}`)
+}
