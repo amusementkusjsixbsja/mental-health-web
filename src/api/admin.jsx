@@ -4,6 +4,10 @@ import service from '@/utils/request.jsx'
 export function login(data) {
   return service.post('/user/login', data)
 }
+// 用户注册接口
+export function register(data) {
+  return service.post('/user/add', data)
+}
 //用户退出登录接口
 export function logout() {
   return service.post('/user/logout')

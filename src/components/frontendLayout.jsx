@@ -3,6 +3,7 @@ import { Layout, Button } from 'antd'
 import { RobotOutlined } from '@ant-design/icons'
 import './frontendLayout.css'
 import { useState, useEffect } from 'react'
+import { logout as logoutApi } from '@/api/admin.jsx'
 
 
 const { Header, Footer, Content } = Layout;
@@ -10,13 +11,25 @@ const { Header, Footer, Content } = Layout;
 
 function FrontendLayout() {
 
-
+  //根据用户状态动态显示菜单，登录后显示AI咨询、情绪日记、知识库、退出登录按钮，未登录后显示登录、注册按钮
+  //
   const [isLogin, setIsLogin] = useState(false)
-  // useEffect(() => {
-  //   setIsLogin(localStorage.getItem('token') !== null)
-  // }, [])
 
-
+  useEffect(() => {
+    if (localStorage.getItem('token') === null) {
+      setIsLogin(false)
+    } else if (JSON.parse(localStorage.getItem('userInfo')).userType === 1) {
+        setIsLogin(true)
+      }
+  }, [isLogin])
+// 退出登录
+  const logout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('userInfo')
+    logoutApi().then(() => {
+      setIsLogin(false)
+    })
+  }
 
 
 
@@ -44,7 +57,7 @@ function FrontendLayout() {
               <Link to="/Auth/register">注册</Link>
             )}
             {isLogin && (
-              <Button type="primary">退出登录</Button>
+              <Button onClick={() => logout()} type="primary">退出登录</Button>
             )}
           </div>
         </Header>

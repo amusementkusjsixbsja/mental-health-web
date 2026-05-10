@@ -25,7 +25,8 @@ function Login() {
             navigate('/back/dashboard')
           })
         } else {
-          // 其他用户类型的跳转逻辑待实现
+          // 用户类型为1，跳转到前端首页
+          navigate('/front')
         }
 
       }
