@@ -1,3 +1,7 @@
+.layout-container {
+  min-height: 100vh;
+}
+
 .header-logo-container {
   display: flex;
   align-items: center;
@@ -28,7 +32,8 @@
 
 .content-container {
   background-color: #035757;
-  height: calc(100vh - 128px);
+  min-height: calc(100vh - 128px);
+  height: auto;
 }
 
 .footer-container {
@@ -41,9 +46,4 @@
 .footer-container p {
   color: white;
   font-weight: bold;
-}
-
-.layout-container {
-  height: 100vh;
-  padding: 0;
 }

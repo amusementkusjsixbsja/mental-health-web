@@ -1,7 +1,7 @@
 .content {
   margin: auto;
   width: 80%;
-  margin-top: 15%;
+  /* margin-top: 15%; */
   height: 60%;
   display: flex;
 }
@@ -9,7 +9,8 @@
 .left-content {
   width: 60%;
   height: 100%;
-  margin: auto;
+  /* margin: auto; */
+  margin-top: 10%;
   padding: 20px;
   display: flex;
   flex-direction: column;

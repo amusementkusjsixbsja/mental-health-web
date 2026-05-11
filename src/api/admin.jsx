@@ -76,3 +76,19 @@ export function deleteEmotional(id) {
 export function getAnalysis() {
   return service.get('/data-analytics/overview')
 }
+//创建新的会话
+export function createChat(data) {
+  return service.post('/psychological-chat/session/start', data)
+}
+//分页查询咨询会话
+export function getConsultPage(params) {
+  return service.get('/psychological-chat/sessions', { params })
+}
+//删除咨询会话
+export function deleteConsult(sessionId) {
+  return service.delete(`/psychological-chat/sessions/${sessionId}`)
+}
+//获取对话信息列表
+export function getChatMessages(sessionId) {
+  return service.get(`/psychological-chat/sessions/${sessionId}/messages`)
+}
