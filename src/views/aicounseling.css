@@ -299,7 +299,7 @@
 /* 聊天内容区域 */
 .chat-content {
   height: 500px;
-  overflow-y: hidden;
+  overflow-y: auto;
   padding: 15px;
 }
 
@@ -309,7 +309,7 @@
   gap: 15px;
   padding: 0 15px 0 15px;
   margin-bottom: 10px;
-  max-width: 80%;
+  width: 90%;
 }
 
 /* AI消息 - 左对齐 */
@@ -320,6 +320,8 @@
 /* 用户消息 - 右对齐，图标在右边 */
 .chat-content-item.user {
   flex-direction: row-reverse;
+  margin-left: auto; 
+  
 }
 
 /* 用户消息文字容器 - 气泡靠右 */
@@ -354,11 +356,9 @@
 
 /* 消息文本容器 */
 .chat-content-item-text {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: 100%;
-  min-width: 0;
+  max-width: 80%;
 }
 
 /* AI 气泡 */
@@ -371,7 +371,7 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   word-wrap: break-word;
   word-break: break-word;
-  max-width: 100%;
+  display: inline-block;
 }
 
 /* AI 正在回复中 - 打字动画 */
@@ -407,7 +407,7 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   word-wrap: break-word;
   word-break: break-word;
-  max-width: 100%;
+  display: inline-block;
 }
 
 .chat-content-item-text-chat p {

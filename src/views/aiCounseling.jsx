@@ -1,120 +1,116 @@
 import '@/views/aicounseling.css'
-import { RobotOutlined, HeartOutlined, PlusOutlined } from '@ant-design/icons'
+import { RobotOutlined, HeartOutlined, PlusOutlined, CommentOutlined, ClockCircleOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons'
 import { useRef, useState, useEffect } from 'react'
 import { createChat, getConsultPage, deleteConsult, getChatMessages } from '@/api/admin'
-import { message as antdMessage, message } from 'antd'
-import { CommentOutlined, ClockCircleOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons'
+import { message } from 'antd'
 import { fetchEventSource } from '@microsoft/fetch-event-source'
 
-
-
 function AiCounseling() {
-  //是否显示欢迎
   const [isWelcome, setIsWelcome] = useState(true)
-  //定义发送消息状态
-  const [isAiSending, setIsAiSending] = useState(false);
-  //定义发送消息事件
+  const [isAiSending, setIsAiSending] = useState(false)
+  const [chatMessages, setChatMessages] = useState([])
+  const [consultList, setConsultList] = useState([])
+  const [userMessage, setUserMessage] = useState('')
+
+  const currentChat = useRef(null)
+  const aiMessageRef = useRef(null)
+  const abortController = useRef(null)
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       sendMessage()
     }
   }
-  //定义对话消息
-  const [chatMessages, setChatMessages] = useState([])
-  //定义分页会话
-  const [consultList, setConsultList] = useState([])  // 初始化为空数组，而不是 undefined
-  //获取分页会话
-  const getSessionPage = (params) => {
-    getConsultPage(params).then(res => {
-      setConsultList(res.records)
-    })
-  }
-  
 
-  //定义用户输入消息
-  const [userMessage, setUserMessage] = useState('')
-  //定义一个当前会话对象
-  const currentChat = useRef([])
-  // 定义当前正在流式输出的AI消息引用
-  const aiMessageRef = useRef(null)
-  //新建会话
+  const getSessionPage = async (params) => {
+    try {
+      const res = await getConsultPage(params)
+      setConsultList(res.records || [])
+    } catch (error) {
+      console.error('获取会话列表失败:', error)
+      setConsultList([])
+  }
+  }
+
   const addNewChat = () => {
+    if (abortController.current) {
+      abortController.current.abort()
+      abortController.current = null
+    }
     setIsAiSending(false)
-    //清空当前会话消息
     setChatMessages([])
-    //显示欢迎语
     setIsWelcome(true)
-    //创建一个新的会话对象
-    const newChat = {
+    setUserMessage('')
+    currentChat.current = {
       sessionId: 'temp_' + Date.now(),
       status: 'TEMP',
       sessionTitle: '新对话'
     }
-    currentChat.current.push(newChat)
   }
+
   useEffect(() => {
     addNewChat()
-    getSessionPage({
-      pageNum: 1,
-      pageSize: 10
-    })
+    getSessionPage({ pageNum: 1, pageSize: 10 })
   }, [])
-  //用户发送消息
+
   const sendMessage = async () => {
-    if (!userMessage.trim()) {
-      return
-    }
+    if (!userMessage.trim() || isAiSending) return
+
     const msg = userMessage.trim()
     setUserMessage('')
     setIsWelcome(false)
-    //添加用户消息
+
     setChatMessages(prev => [...prev, {
       id: 'msg_' + Date.now(),
       senderType: 1,
       content: msg,
       createdAt: new Date().toLocaleString()
     }])
-    //如果没有会话或是临时会话，创建一个新的会话
-    if (!currentChat.current || currentChat.current.status === 'TEMP') {
-      startChat(msg)
-    }
+
     setIsAiSending(true)
+
+    try {
+      if (!currentChat.current || currentChat.current.status === 'TEMP') {
+        await startChat(msg)
+      } else {
+        await startAiResponse(currentChat.current.sessionId, msg)
+      }
+    } catch (error) {
+      console.error('发送消息失败:', error)
+      handleError(error)
+    }
   }
 
-  //创建新对话
-  const startChat = (msg) => {
-    //构建会话参数
+  const startChat = async (msg) => {
     const chatParams = {
-      initialMessage: msg
+      initialMessage: msg,
+      sessionTitle: currentChat.current?.sessionTitle === '新对话'
+        ? 'ai健康助手-' + Date.now()
+        : currentChat.current?.sessionTitle
     }
-    if (currentChat.current.sessionTitle === '新对话') {
-      chatParams.sessionTitle = 'ai健康助手-' + Date.now()
-    } else {
-      chatParams.sessionTitle = currentChat.current.sessionTitle
-    }
-    createChat(chatParams).then(res => {
-      // 更新当前会话引用
+
+    try {
+      const res = await createChat(chatParams)
       Object.assign(currentChat.current, {
         sessionId: res.sessionId,
         status: 'ACTIVE',
         sessionTitle: chatParams.sessionTitle
       })
-      getSessionPage({
-        pageNum: 1,
-        pageSize: 10
-      })
-      //开始流式对话
-      startAiResponse(currentChat.current.sessionId, msg)
-    })
-  }
-  //开始流式对话
-  const startAiResponse = (sessionId, userMessage) => {
-    if (isAiSending) {
-      antdMessage.warning('as正在处理中，请稍后再试')
-      return
+      await getSessionPage({ pageNum: 1, pageSize: 10 })
+      await startAiResponse(currentChat.current.sessionId, msg)
+    } catch (error) {
+      throw error
     }
-    setIsAiSending(true)
+  }
+
+  const startAiResponse = async (sessionId, userMessage) => {
+    if (abortController.current) {
+      abortController.current.abort()
+    }
+    const ctrl = new AbortController()
+    abortController.current = ctrl
+
     const aiMessage = {
       id: 'ai_' + Date.now() + '_' + Math.random().toString().substring(2, 9),
       senderType: 2,
@@ -122,99 +118,115 @@ function AiCounseling() {
       createdAt: new Date().toISOString()
     }
     aiMessageRef.current = aiMessage
-    setChatMessages([...chatMessages, aiMessage])
+    setChatMessages(prev => [...prev, aiMessage])
 
-    //调用流式接口
-    const ctrl = new AbortController()
-    fetchEventSource('/api/psychological-chat/stream', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'text/event-stream',
-        'Token': localStorage.getItem('token') || ''
-      },
-      body: JSON.stringify({
-        sessionId: sessionId,
-        userMessage: userMessage
-      }),
-      signal: ctrl.signal,
-      onopen: (response) => {
-        console.log(response)
-        if (response.headers.get('Content-Type') !== 'text/event-stream') {
-          antdMessage.error('服务器返回非流式响应')
-        }
-      },
-      onmessage: (event) => {
-        const raw = event.data.trim()
-        if (!raw) return
-        const eventName = event.event
-        if (eventName === 'done') {
-          setIsAiSending(false)
-          ctrl.abort()
-          return
-        }
-        const payload = JSON.parse(raw)
-        const ok = String(payload.code) === '200'
-        if (ok && payload.data && payload.content) {
-          if (aiMessageRef.current) {
-            aiMessageRef.current.content += payload.content
-            setChatMessages(prev => [...prev])
+    try {
+      await fetchEventSource('/api/psychological-chat/stream', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'text/event-stream',
+          'Token': localStorage.getItem('token') || ''
+        },
+        body: JSON.stringify({
+          sessionId: sessionId,
+          userMessage: userMessage
+        }),
+        signal: ctrl.signal,
+        onopen: (response) => {
+          if (response.headers.get('Content-Type') !== 'text/event-stream') {
+            message.error('服务器返回非流式响应')
           }
-        } else if (!ok) {
-          handleError(payload.message || "ai回复失败")
+        },
+        onmessage: (event) => {
+          const raw = event.data.trim()
+          if (!raw) return
+          const eventName = event.event
+          if (eventName === 'done') {
+            setIsAiSending(false)
+            ctrl.abort()
+            return
+          }
+          const payload = JSON.parse(raw)
+          const ok = String(payload.code) === '200'
+          if (ok && payload.data && payload.data.content) {
+            if (aiMessageRef.current) {
+              aiMessageRef.current.content += payload.data.content
+              setChatMessages(prev => [...prev])
+            } 
+          } else if (!ok) {
+            if (aiMessageRef.current) {
+              aiMessageRef.current.content = payload.msg || 'ai回复失败'
+              setChatMessages(prev => [...prev])
+            }
+            setIsAiSending(false)
+            ctrl.abort()
+          }
+        },
+        onerror: (error) => {
+          if (ctrl.signal.aborted) return
+          throw error
+        },
+        onclose: () => {
         }
-      },
-      onerror: (error) => {
-        handleError(error || '服务器返回错误')
-        throw error
-      },
-      onclose: () => {
-        //调用ai情绪花园
-      }
-    })
+      })
+    } catch (error) {
+      if (error.name === 'AbortError') return
+      throw error
+    }
   }
-  //错误回复的显示
+
   const handleError = (error) => {
     if (aiMessageRef.current) {
-      aiMessageRef.current.content = "ai回复失败"
+      aiMessageRef.current.content = 'ai回复失败'
       setChatMessages(prev => [...prev])
     }
     setIsAiSending(false)
-    antdMessage.error("ai回复失败")
+    message.error('ai回复失败')
   }
 
-
-  //点击会话
-  const handleSessionClick = (item) => {
+  const handleSessionClick = async (item) => {
+    if (abortController.current) {
+      abortController.current.abort()
+      abortController.current = null
+    }
     setIsAiSending(false)
-    getChatMessages(item.id).then(res => {
-      //如果返回空或不是数组，显示欢迎语
+
+    try {
+      const res = await getChatMessages(item.id)
       if (!res || !Array.isArray(res) || res.length === 0) {
         setChatMessages([])
         setIsWelcome(true)
-        return
+      } else {
+        setChatMessages(res)
+        setIsWelcome(false)
       }
-      setChatMessages(res)
-      setIsWelcome(false)
-    })
-    const sessionData = {
-      sessionId: 'session_' + item.id,
+    } catch (error) {
+      console.error('获取会话消息失败:', error)
+      message.error('加载消息失败')
+      setChatMessages([])
+      setIsWelcome(true)
+    }
+
+    currentChat.current = {
+      sessionId: item.id,
       status: 'ACTIVE',
       sessionTitle: item.sessionTitle
     }
-    currentChat.current = sessionData
-
   }
-  //删除会话
-  const deleteSession = (id) => {
-    deleteConsult(id).then(res => {
-      antdMessage.success('删除成功')
-      getSessionPage({
-        pageNum: 1,
-        pageSize: 10
-      })
+
+  const deleteSession = async (id) => {
+    try {
+      const res = await deleteConsult(id)
+      message.success('删除成功')
+      if (currentChat.current?.sessionId === id) {
+        addNewChat()
+      }
+      await getSessionPage({ pageNum: 1, pageSize: 10 })
+    } catch (error) {
+      console.error('删除失败:', error)
+      message.error('删除失败')
     }
-    )
   }
 
   return (
@@ -258,7 +270,7 @@ function AiCounseling() {
                     </div>
                   </div>
                   <div className='session-action'>
-                    <DeleteOutlined onClick={() => deleteSession(item.id)} />
+                    <DeleteOutlined onClick={(e) => { e.stopPropagation(); deleteSession(item.id) }} />
                   </div>
                 </div>
               </div>
@@ -282,7 +294,6 @@ function AiCounseling() {
           </button>
         </div>
         <div className='chat-content'>
-          {/**欢迎用语 */}
           {isWelcome && (
             <div className='chat-content-item ai'>
               <div >
@@ -297,18 +308,13 @@ function AiCounseling() {
             </div>
           )}
 
-          {/**对话内容 */}
           {chatMessages.map(item => (
             <div className={`chat-content-item ${item.senderType === 1 ? 'user' : 'ai'}`} key={item.id}>
               <div >
                 <div className={`chat-content-item-icon-bg ${item.senderType === 1 ? 'user' : 'ai'}`}>{item.senderType === 1 ? <UserOutlined className="chat-content-item-icon" /> : <RobotOutlined className="chat-content-item-icon" />}</div>
               </div>
               <div className='chat-content-item-text'>
-                {item.isError ? (
-                  <div className='chat-content-item-text-chat error'>
-                    <p>{item.content}</p>
-                  </div>
-                ) : item.content ? (
+                {item.content ? (
                   <div className={`chat-content-item-text-chat${item.isTyping ? ' typing' : ''}`}>
                     <p>{item.content}</p>
                   </div>
@@ -330,18 +336,13 @@ function AiCounseling() {
               rows={3}
               disabled={isAiSending}
               value={userMessage}
-              onKeyDown={(e) => {
-                handleKeyDown(e);
-              }}
-              onChange={(e) => {
-                setUserMessage(e.target.value)
-              }}
+              onKeyDown={(e) => { handleKeyDown(e) }}
+              onChange={(e) => { setUserMessage(e.target.value) }}
             />
             <div className='input-container-desc-container'>
               <span className='input-container-desc'>输入enter发送，输入enter+shift换行</span>
               <span className='input-container-desc'>{userMessage.length}/{500}</span>
             </div>
-
           </div >
           <button className='send-btn' disabled={isAiSending || !userMessage.trim() || userMessage.length > 500} onClick={() => sendMessage()}>发送</button>
         </div>
