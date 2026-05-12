@@ -96,3 +96,7 @@ export function getChatMessages(sessionId) {
 export function getEmotionGarden(sessionId) {
   return service.get(`/psychological-chat/session/${sessionId}/emotion`)
 }
+//创建或更新情绪日志
+export function createOrUploadEmotionDiary(data) {
+  return service.post('/emotion-diary', data)
+}
