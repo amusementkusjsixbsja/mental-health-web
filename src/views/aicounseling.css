@@ -299,7 +299,7 @@
 /* 聊天内容区域 */
 .chat-content {
   height: 500px;
-  overflow-y: auto;
+  overflow-y: hidden;
   padding: 15px;
 }
 
@@ -483,6 +483,10 @@
 
 .input-container-textarea::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+.input-container-desc-container{
+  display: flex;
+  justify-content: space-between;
 }
 
 /* 输入框描述 */

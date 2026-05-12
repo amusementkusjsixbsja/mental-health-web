@@ -4,6 +4,9 @@ import { useRef, useState, useEffect } from 'react'
 import { createChat, getConsultPage, deleteConsult, getChatMessages } from '@/api/admin'
 import { message as antdMessage, message } from 'antd'
 import { CommentOutlined, ClockCircleOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons'
+import { fetchEventSource } from '@microsoft/fetch-event-source'
+
+
 
 function AiCounseling() {
   //是否显示欢迎
@@ -27,11 +30,14 @@ function AiCounseling() {
       setConsultList(res.records)
     })
   }
+  
 
   //定义用户输入消息
   const [userMessage, setUserMessage] = useState('')
   //定义一个当前会话对象
-  const currentChat = useRef(null)
+  const currentChat = useRef([])
+  // 定义当前正在流式输出的AI消息引用
+  const aiMessageRef = useRef(null)
   //新建会话
   const addNewChat = () => {
     setIsAiSending(false)
@@ -45,7 +51,7 @@ function AiCounseling() {
       status: 'TEMP',
       sessionTitle: '新对话'
     }
-    currentChat.current = newChat
+    currentChat.current.push(newChat)
   }
   useEffect(() => {
     addNewChat()
@@ -89,27 +95,99 @@ function AiCounseling() {
     }
     createChat(chatParams).then(res => {
       // 更新当前会话引用
-      currentChat.current = {
+      Object.assign(currentChat.current, {
         sessionId: res.sessionId,
         status: 'ACTIVE',
         sessionTitle: chatParams.sessionTitle
-      }
-      // 把AI的回复添加到消息列表
-      //   setChatMessages(prev => [...prev, {
-      //     id: 'msg_' + Date.now(),
-      //     senderType: 2,
-      //     content: res.replyContent || res.message || '',
-      //     createdAt: new Date().toLocaleString()
-      //   }])
-      //   setIsAiSending(false)
+      })
+      getSessionPage({
+        pageNum: 1,
+        pageSize: 10
+      })
+      //开始流式对话
+      startAiResponse(currentChat.current.sessionId, msg)
     })
   }
+  //开始流式对话
+  const startAiResponse = (sessionId, userMessage) => {
+    if (isAiSending) {
+      antdMessage.warning('as正在处理中，请稍后再试')
+      return
+    }
+    setIsAiSending(true)
+    const aiMessage = {
+      id: 'ai_' + Date.now() + '_' + Math.random().toString().substring(2, 9),
+      senderType: 2,
+      content: '',
+      createdAt: new Date().toISOString()
+    }
+    aiMessageRef.current = aiMessage
+    setChatMessages([...chatMessages, aiMessage])
+
+    //调用流式接口
+    const ctrl = new AbortController()
+    fetchEventSource('/api/psychological-chat/stream', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'text/event-stream',
+        'Token': localStorage.getItem('token') || ''
+      },
+      body: JSON.stringify({
+        sessionId: sessionId,
+        userMessage: userMessage
+      }),
+      signal: ctrl.signal,
+      onopen: (response) => {
+        console.log(response)
+        if (response.headers.get('Content-Type') !== 'text/event-stream') {
+          antdMessage.error('服务器返回非流式响应')
+        }
+      },
+      onmessage: (event) => {
+        const raw = event.data.trim()
+        if (!raw) return
+        const eventName = event.event
+        if (eventName === 'done') {
+          setIsAiSending(false)
+          ctrl.abort()
+          return
+        }
+        const payload = JSON.parse(raw)
+        const ok = String(payload.code) === '200'
+        if (ok && payload.data && payload.content) {
+          if (aiMessageRef.current) {
+            aiMessageRef.current.content += payload.content
+            setChatMessages(prev => [...prev])
+          }
+        } else if (!ok) {
+          handleError(payload.message || "ai回复失败")
+        }
+      },
+      onerror: (error) => {
+        handleError(error || '服务器返回错误')
+        throw error
+      },
+      onclose: () => {
+        //调用ai情绪花园
+      }
+    })
+  }
+  //错误回复的显示
+  const handleError = (error) => {
+    if (aiMessageRef.current) {
+      aiMessageRef.current.content = "ai回复失败"
+      setChatMessages(prev => [...prev])
+    }
+    setIsAiSending(false)
+    antdMessage.error("ai回复失败")
+  }
+
+
   //点击会话
   const handleSessionClick = (item) => {
     setIsAiSending(false)
-    console.log(item)
     getChatMessages(item.id).then(res => {
-      console.log(res)
       //如果返回空或不是数组，显示欢迎语
       if (!res || !Array.isArray(res) || res.length === 0) {
         setChatMessages([])
@@ -119,6 +197,13 @@ function AiCounseling() {
       setChatMessages(res)
       setIsWelcome(false)
     })
+    const sessionData = {
+      sessionId: 'session_' + item.id,
+      status: 'ACTIVE',
+      sessionTitle: item.sessionTitle
+    }
+    currentChat.current = sessionData
+
   }
   //删除会话
   const deleteSession = (id) => {
@@ -252,9 +337,13 @@ function AiCounseling() {
                 setUserMessage(e.target.value)
               }}
             />
-            <p className='input-container-desc'>输入enter发送，输入enter+shift换行</p>
+            <div className='input-container-desc-container'>
+              <span className='input-container-desc'>输入enter发送，输入enter+shift换行</span>
+              <span className='input-container-desc'>{userMessage.length}/{500}</span>
+            </div>
+
           </div >
-          <button className='send-btn' onClick={() => sendMessage()}>发送</button>
+          <button className='send-btn' disabled={isAiSending || !userMessage.trim() || userMessage.length > 500} onClick={() => sendMessage()}>发送</button>
         </div>
       </div>
     </div>
