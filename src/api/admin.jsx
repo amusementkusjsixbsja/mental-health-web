@@ -92,3 +92,7 @@ export function deleteConsult(sessionId) {
 export function getChatMessages(sessionId) {
   return service.get(`/psychological-chat/sessions/${sessionId}/messages`)
 }
+//获取情绪花园数据
+export function getEmotionGarden(sessionId) {
+  return service.get(`/psychological-chat/session/${sessionId}/emotion`)
+}

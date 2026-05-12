@@ -21,7 +21,6 @@
   display: flex;
   flex-direction: column;
   gap: 15px;
-  padding: 15px;
   border-radius: 10px;
   margin-left: 5%;
 }
@@ -86,6 +85,218 @@
   background-color: #0a7a04;
   border-radius: 50%;
   margin-top: 2px;
+}
+
+/* 情绪花园 */
+.emotion-garden {
+  width: 100%;
+  flex-shrink: 0;
+  padding: 15px;
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.garden-header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.garden-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.emotion-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.emotion-name {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ea7f13;
+}
+
+.emotion-score {
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  background-color: #ea7f13;
+  padding: 4px 12px;
+  border-radius: 20px;
+  min-width: 36px;
+  text-align: center;
+}
+
+.warm-tips {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.emotion-status-text {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-label {
+  font-size: 12px;
+  color: #999;
+}
+
+.status-emotion {
+  font-size: 13px;
+  font-weight: bold;
+  color: #333;
+}
+
+.emotion-intensity {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.intensity-dots {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.intensity-text {
+  font-size: 12px;
+  color: #999;
+}
+
+/* 温暖建议卡片 */
+.warm-tips-card {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #fff8f0;
+  border: 1px solid #ffedd5;
+}
+
+.warm-tips-icon {
+  font-size: 18px;
+  color: #ea7f13;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.warm-tips-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.warm-tips-title {
+  display: flex;
+  align-items: center;
+}
+
+.warm-tips-title-text {
+  font-size: 13px;
+  font-weight: bold;
+  color: #ea7f13;
+}
+
+.warm-tips-content-text {
+  display: flex;
+  align-items: flex-start;
+}
+
+.warm-tips-content-text-span {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* 治愈行动清单 */
+.health-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.health-actions-title {
+  font-size: 13px;
+  font-weight: bold;
+  color: #333;
+}
+
+.health-actions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.health-action-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+}
+
+.health-action-icon {
+  font-size: 14px;
+  color: #52c41a;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.health-action-text {
+  font-size: 12px;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* 风险提示 */
+.risk-notice {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background-color: #fff2f0;
+  border: 1px solid #ffccc7;
+}
+
+.risk-notice-icon {
+  font-size: 18px;
+  color: #ff4d4f;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.risk-notice-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.risk-notice-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #ff4d4f;
+}
+
+.risk-notice-text {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
 }
 
 /* 会话历史 */
@@ -306,7 +517,7 @@
 
 /* 聊天内容区域 */
 .chat-content {
-  height: 500px;
+  height: 600px;
   overflow-y: auto;
   padding: 15px;
 }
@@ -328,8 +539,8 @@
 /* 用户消息 - 右对齐，图标在右边 */
 .chat-content-item.user {
   flex-direction: row-reverse;
-  margin-left: auto; 
-  
+  margin-left: auto;
+
 }
 
 /* 用户消息文字容器 - 气泡靠右 */
@@ -492,7 +703,8 @@
 .input-container-textarea::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
-.input-container-desc-container{
+
+.input-container-desc-container {
   display: flex;
   justify-content: space-between;
 }
@@ -569,4 +781,18 @@
   .chat-main {
     width: 100%;
   }
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+  background-color: #999;
+  border: 1px solid #999;
+}
+
+.dot.active {
+  background-color: #ea7f13e4;
 }

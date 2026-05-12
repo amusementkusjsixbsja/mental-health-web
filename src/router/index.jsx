@@ -11,7 +11,7 @@ import Register from '@/views/register.jsx'
 import FrontendLayout from '@/components/frontendLayout.jsx'
 import Home from '@/views/home.jsx'
 import AiCounseling from '@/views/aiCounseling.jsx'
-import EmotionDairy from '@/views/emotionDairy.jsx'
+import EmotionDiary from '@/views/emotionDiary.jsx'
 import KnowledgeFront from '@/views/knowledgeFront.jsx'
 
 // 后台路由配置：定义所有页面路由
@@ -55,8 +55,8 @@ const backendRouter = createBrowserRouter([
         element: <AiCounseling />,
       },
       {
-        path: 'emotionDairy',
-        element: <EmotionDairy />,
+        path: 'emotionDiary',
+        element: <EmotionDiary />,
       },
       {
         path: 'knowledgeFront',

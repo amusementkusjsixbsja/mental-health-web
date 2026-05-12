@@ -47,7 +47,7 @@ function FrontendLayout() {
               <Link to="/front/aiCounseling">AI咨询</Link>
             )}
             {isLogin && (
-              <Link to="/front/emotionDairy">情绪日记</Link>
+              <Link to="/front/emotionDiary">情绪日记</Link>
             )}
             <Link to="/front/knowledgeFront">知识库</Link>
             {!isLogin && (

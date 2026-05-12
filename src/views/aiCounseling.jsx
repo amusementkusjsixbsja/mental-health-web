@@ -1,7 +1,7 @@
 import '@/views/aicounseling.css'
-import { RobotOutlined, HeartOutlined, PlusOutlined, CommentOutlined, ClockCircleOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons'
+import { RobotOutlined, HeartOutlined, PlusOutlined, CommentOutlined, ClockCircleOutlined, DeleteOutlined, UserOutlined, CheckCircleOutlined, WarningOutlined } from '@ant-design/icons'
 import { useRef, useState, useEffect } from 'react'
-import { createChat, getConsultPage, deleteConsult, getChatMessages } from '@/api/admin'
+import { createChat, getConsultPage, deleteConsult, getChatMessages, getEmotionGarden } from '@/api/admin'
 import { message } from 'antd'
 import { fetchEventSource } from '@microsoft/fetch-event-source'
 
@@ -16,6 +16,45 @@ function AiCounseling() {
   const currentChat = useRef(null)
   const aiMessageRef = useRef(null)
   const abortController = useRef(null)
+  //情绪花园
+  const [currentEmotion, setCurrentEmotion] = useState({
+    primaryEmotion: '中性',
+    emotionScore: 50,
+    isNegative: false,
+    riskLevel: 2,
+    suggestion: '情绪状态平稳',
+    improvementSuggestions: []
+  })
+
+  const loadEmotionGarden = (sessionId) => {
+    const id = sessionId.toString().startsWith('session_') ? sessionId : 'session_' + sessionId
+    getEmotionGarden(id).then(res => {
+      setCurrentEmotion(res || {})
+    }).catch(error => {
+      console.error('获取情绪花园失败:', error)
+    })
+  }
+
+  const getIntensity = () => {
+    if (currentEmotion.emotionScore >= 61) {
+      return 3
+    } else if (currentEmotion.emotionScore >= 41) {
+      return 2
+    } else {
+      return 1
+    }
+  }
+  const getRiskLevel = (level) => {
+    if (level === 0) {
+      return '正常'
+    } else if (level === 1) {
+      return '关注'
+    } else if (level === 2) {
+      return '预警'
+    } else {
+      return '危机'
+    }
+  }
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -156,6 +195,7 @@ function AiCounseling() {
           if (eventName === 'done') {
             setIsAiSending(false)
             ctrl.abort()
+            loadEmotionGarden(sessionId)
             getSessionPage({ pageNum: 1, pageSize: 10 })
             return
           }
@@ -180,6 +220,7 @@ function AiCounseling() {
           throw error
         },
         onclose: () => {
+          loadEmotionGarden(sessionId)
         }
       })
     } catch (error) {
@@ -204,7 +245,7 @@ function AiCounseling() {
     }
     setIsAiSending(false)
     setSelectedId(item.id)
-
+    loadEmotionGarden(item.id)
     try {
       const res = await getChatMessages(item.id)
       if (!res || !Array.isArray(res) || res.length === 0) {
@@ -214,6 +255,7 @@ function AiCounseling() {
         setChatMessages(res)
         setIsWelcome(false)
       }
+
     } catch (error) {
       console.error('获取会话消息失败:', error)
       message.error('加载消息失败')
@@ -247,6 +289,7 @@ function AiCounseling() {
   return (
     <div className="consultation-container">
       <div className="siderbar">
+        {/** 心理健康助手 */}
         <div className='ai-helper'>
           <div className='ai-icon'>
             <div className='ai-icon-bg'><RobotOutlined className="sidebar-logo-icon" /></div>
@@ -259,6 +302,80 @@ function AiCounseling() {
             <div>在线服务中</div>
           </div>
         </div>
+        {/**情绪花园 */}
+        <div className='emotion-garden'>
+          <div className='garden-header'>
+            <div className='garden-title'>
+              情绪花园
+            </div>
+          </div>
+          <div className='emotion-info'>
+            <span className='emotion-name'>{currentEmotion.primaryEmotion}</span>
+            <span className='emotion-score'>{currentEmotion.emotionScore}</span>
+          </div>
+          <div className='warm-tips'>
+            <div className='emotion-status-text'>
+              <span className='status-label'>今天感觉：</span>
+              <span className='status-emotion'>{currentEmotion.isNegative ? '很糟糕' : '很不错'}</span>
+            </div>
+            <div className='emotion-intensity'>
+              <span className='intensity-dots'>
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <span
+                    key={index}
+                    className={`dot${index < getIntensity() ? ' active' : ''}`}
+                  ></span>
+                ))}
+              </span>
+              <span className='intensity-text'>{getRiskLevel(currentEmotion.riskLevel)}</span>
+            </div>
+          </div>
+          {/**温暖建议卡片 */}
+          {currentEmotion.suggestion && (
+            <div className='warm-tips-card'>
+              <div className='warm-tips-icon'>
+                <HeartOutlined className="warm-tips-icon" />
+              </div>
+              <div className='warm-tips-content'>
+                <div className='warm-tips-title'>
+                  <span className='warm-tips-title-text'>给你的小建议</span>
+                </div>
+                <div className='warm-tips-content-text'>
+                  <span className='warm-tips-content-text-span'>{currentEmotion.suggestion}</span>
+                </div>
+              </div>
+
+            </div>)}
+          {/**治愈行动清单 */}
+          {currentEmotion.improvementSuggestions.length > 0 && (
+            <div className='health-actions'>
+              <div className='health-actions-title'>治愈行动清单</div>
+              <div className='health-actions-list'>
+                {currentEmotion.improvementSuggestions.map((item, index) => (
+                  <div key={index} className='health-action-item'>
+                    <div className='health-action-icon'>
+                      <CheckCircleOutlined className="health-action-icon" />
+                    </div>
+                    <div className='health-action-text'>
+                      {item}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/**风险提示 */}
+              {currentEmotion.riskLevel > 1 && currentEmotion.isNegative && (
+                <div className='risk-notice'>
+                  <div className='risk-notice-icon'>
+                    <WarningOutlined className="risk-notice-icon" />
+                  </div>
+                  <div className='risk-notice-content'>
+                    <span className='risk-notice-title'>温馨提示</span>
+                    <span className='risk-notice-text'>{currentEmotion.riskDescription}</span>
+                  </div>
+                </div>)}
+            </div>)}
+        </div>
+        {/** 会话历史 */}
         <div className='session-history'>
           <h4>会话历史</h4>
           <div className='session-list'>
