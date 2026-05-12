@@ -11,6 +11,7 @@ function AiCounseling() {
   const [chatMessages, setChatMessages] = useState([])
   const [consultList, setConsultList] = useState([])
   const [userMessage, setUserMessage] = useState('')
+  const [selectedId, setSelectedId] = useState(null)
 
   const currentChat = useRef(null)
   const aiMessageRef = useRef(null)
@@ -30,7 +31,7 @@ function AiCounseling() {
     } catch (error) {
       console.error('获取会话列表失败:', error)
       setConsultList([])
-  }
+    }
   }
 
   const addNewChat = () => {
@@ -42,6 +43,7 @@ function AiCounseling() {
     setChatMessages([])
     setIsWelcome(true)
     setUserMessage('')
+    setSelectedId(null)
     currentChat.current = {
       sessionId: 'temp_' + Date.now(),
       status: 'TEMP',
@@ -61,19 +63,19 @@ function AiCounseling() {
     setUserMessage('')
     setIsWelcome(false)
 
-    setChatMessages(prev => [...prev, {
-      id: 'msg_' + Date.now(),
-      senderType: 1,
-      content: msg,
-      createdAt: new Date().toLocaleString()
-    }])
-
     setIsAiSending(true)
 
     try {
       if (!currentChat.current || currentChat.current.status === 'TEMP') {
         await startChat(msg)
       } else {
+        //将用户输入的信息放入会话列表
+        setChatMessages(prev => [...prev, {
+          id: 'user_' + Date.now() + '_' + Math.random().toString().substring(2, 9),
+          senderType: 1,
+          content: msg,
+          createdAt: new Date().toISOString()
+        }])
         await startAiResponse(currentChat.current.sessionId, msg)
       }
     } catch (error) {
@@ -83,6 +85,7 @@ function AiCounseling() {
   }
 
   const startChat = async (msg) => {
+    //构建会话参数
     const chatParams = {
       initialMessage: msg,
       sessionTitle: currentChat.current?.sessionTitle === '新对话'
@@ -91,12 +94,20 @@ function AiCounseling() {
     }
 
     try {
+      //调用后端接口创建会话
       const res = await createChat(chatParams)
-      Object.assign(currentChat.current, {
+      //转换
+      const sessionData = {
         sessionId: res.sessionId,
         status: 'ACTIVE',
         sessionTitle: chatParams.sessionTitle
-      })
+      }
+      if (!currentChat.current || currentChat.current.status === 'TEMP') {
+        //更新为正式会话
+        Object.assign(currentChat.current, sessionData)
+      } else {
+        currentChat.current = sessionData
+      }
       await getSessionPage({ pageNum: 1, pageSize: 10 })
       await startAiResponse(currentChat.current.sessionId, msg)
     } catch (error) {
@@ -145,6 +156,7 @@ function AiCounseling() {
           if (eventName === 'done') {
             setIsAiSending(false)
             ctrl.abort()
+            getSessionPage({ pageNum: 1, pageSize: 10 })
             return
           }
           const payload = JSON.parse(raw)
@@ -153,7 +165,7 @@ function AiCounseling() {
             if (aiMessageRef.current) {
               aiMessageRef.current.content += payload.data.content
               setChatMessages(prev => [...prev])
-            } 
+            }
           } else if (!ok) {
             if (aiMessageRef.current) {
               aiMessageRef.current.content = payload.msg || 'ai回复失败'
@@ -191,6 +203,7 @@ function AiCounseling() {
       abortController.current = null
     }
     setIsAiSending(false)
+    setSelectedId(item.id)
 
     try {
       const res = await getChatMessages(item.id)
@@ -207,21 +220,23 @@ function AiCounseling() {
       setChatMessages([])
       setIsWelcome(true)
     }
-
-    currentChat.current = {
-      sessionId: item.id,
+    const sessionData = {
+      sessionId: "session_" + item.id,
+      serverId: item.id,
       status: 'ACTIVE',
       sessionTitle: item.sessionTitle
     }
+    currentChat.current = sessionData
   }
 
   const deleteSession = async (id) => {
     try {
       const res = await deleteConsult(id)
       message.success('删除成功')
-      if (currentChat.current?.sessionId === id) {
+      if (currentChat.current?.serverId === id) {
         addNewChat()
       }
+      setSelectedId(prev => prev === id ? null : prev)
       await getSessionPage({ pageNum: 1, pageSize: 10 })
     } catch (error) {
       console.error('删除失败:', error)
@@ -248,7 +263,7 @@ function AiCounseling() {
           <h4>会话历史</h4>
           <div className='session-list'>
             {consultList.map(item => (
-              <div className='session-item' key={item.id} onClick={() => handleSessionClick(item)}>
+              <div className={`session-item${selectedId === item.id ? ' active' : ''}`} key={item.id} onClick={() => handleSessionClick(item)}>
                 <div className='session-info'>
                   <div className='session-title'>
                     <span>{item.sessionTitle}</span>

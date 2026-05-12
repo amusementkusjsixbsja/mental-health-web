@@ -145,12 +145,17 @@
   transition: all 0.3s ease;
   background-color: #f9f9f9;
   border: 1px solid #eee;
+  /* overflow: hidden; */
 }
 
 .session-item:hover {
   background-color: #f0f0f0;
   transform: translateY(-2px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.session-item.active {
+  background-color: #fff3e0;
 }
 
 .session-info {
@@ -162,6 +167,7 @@
 
 .session-title {
   flex: 1;
+  overflow: hidden;
 }
 
 .session-title>span {
@@ -186,6 +192,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: block;
+  /* width: 100%; */
 }
 
 .session-stats {
