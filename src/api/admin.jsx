@@ -100,3 +100,7 @@ export function getEmotionGarden(sessionId) {
 export function createOrUploadEmotionDiary(data) {
   return service.post('/emotion-diary', data)
 }
+//前端查询知识文章列表
+export function knowledgeArticlePage(params) {
+  return service.get('/knowledge/article/page', { params })
+}
