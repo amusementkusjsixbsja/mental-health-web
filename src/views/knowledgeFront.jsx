@@ -3,6 +3,7 @@ import { BookOutlined } from '@ant-design/icons';
 import { knowledgeArticlePage } from '@/api/admin';
 import { message, Tag, Pagination } from 'antd';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SlidersOutlined, CalendarOutlined, UserOutlined, DesktopOutlined } from '@ant-design/icons';
 
 
@@ -42,6 +43,10 @@ function KnowledgeFront() {
     }
     return url ? `http://159.75.169.224:1235${url}` : 'https://file.itndedu.com/psychology_ai.png';
   }
+  const navigate = useNavigate();
+  const handleDetail = (id) => {
+    navigate(`/front/knowledge/Article/${id}`);
+  }
 
   return (
     <div className='emotion-diary-container'>
@@ -74,7 +79,7 @@ function KnowledgeFront() {
           <div className='menu-title'>文章列表</div>
           <div className='menu-item-list'>
             {articleList.map((item) => (
-              <div key={item.id} className='article-item'>
+              <div key={item.id} className='article-item' onClick={() => handleDetail(item.id)}>
                 <div className='article-image'>
                   <img src={item?.coverImage ? getImage(item.coverImage) : 'https://file.itndedu.com/psychology_ai.png'} alt={item.title} style={{ width: 200, height: 120, 'objectFit': 'cover' }} />
                 </div>

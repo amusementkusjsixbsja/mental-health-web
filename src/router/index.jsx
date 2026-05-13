@@ -13,6 +13,7 @@ import Home from '@/views/home.jsx'
 import AiCounseling from '@/views/aiCounseling.jsx'
 import EmotionDiary from '@/views/emotionDiary.jsx'
 import KnowledgeFront from '@/views/knowledgeFront.jsx'
+import KnowledgeDetail from '@/views/KnowledgeDetail.jsx'
 
 // 后台路由配置：定义所有页面路由
 const backendRouter = createBrowserRouter([
@@ -61,6 +62,10 @@ const backendRouter = createBrowserRouter([
       {
         path: 'knowledgeFront',
         element: <KnowledgeFront />,
+      },
+      {
+        path: 'knowledge/Article/:id',
+        element: <KnowledgeDetail />,
       }
     ]
   },

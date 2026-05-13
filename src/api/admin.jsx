@@ -104,3 +104,7 @@ export function createOrUploadEmotionDiary(data) {
 export function knowledgeArticlePage(params) {
   return service.get('/knowledge/article/page', { params })
 }
+//获取知识文章详情
+export function knowledgeArticleDetail(id) {
+  return service.get(`/knowledge/article/${id}`)
+}
