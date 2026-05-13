@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { message } from 'antd'
 
 // 创建axios请求实例，配置基础URL和超时时间
 const request = axios.create({
