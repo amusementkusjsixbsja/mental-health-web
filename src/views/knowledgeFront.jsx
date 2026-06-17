@@ -23,7 +23,7 @@ function KnowledgeFront() {
       currentPage: 1,
       size: 5,
     }).then((res) => {
-      setMenuArticleList(res.records);
+      setMenuArticleList(res.records||[]);
     })
     knowledgeArticlePage({
       sortField: 'publishAt',
@@ -31,9 +31,11 @@ function KnowledgeFront() {
       currentPage: pagination.current,
       size: pagination.pageSize,
     }).then((res) => {
-      setArticleList(res.records);
-      pagination.total = res.total;
-      setPagination(pagination);
+      setArticleList(res.records||[]);
+      setPagination({
+        ...pagination,
+        total: res.total,
+      })
     })
   }, [pagination.current]);
   // 获取文章封面图片
